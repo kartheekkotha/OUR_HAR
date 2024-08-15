@@ -16,12 +16,12 @@ parser.add_argument('--alpha', default=1, help='weighted summation')
 arg = parser.parse_args()
 
 dataset = arg.datasets
-label = open('../Output_skeletons_without_missing_skeletons/xsub/val_label_filtered.pkl', 'rb')
+label = open('new_data_processed/xset/val_label_120.pkl', 'rb')
 label = np.array(pickle.load(label))
-#
-r1 = open('./epoch1_test_score_s-tr.pkl', 'rb')
+#code/results_FR_Head/NTU-120/x-sub/S-TR/test
+r1 = open('./results_FR_Head/NTU-120/W_bones/xset/S-TR/epoch1_test_score.pkl', 'rb')
 r1 = list(pickle.load(r1).items())
-r2 = open('./epoch1_test_score_t-tr.pkl', 'rb')
+r2 = open('./results_FR_Head/NTU-120/W_bones/xset/T-TR/epoch1_test_score.pkl', 'rb')
 r2 = list(pickle.load(r2).items())
 right_num = total_num = right_num_5 = 0
 print(label.size)

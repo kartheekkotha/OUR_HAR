@@ -1,0 +1,279 @@
+nohup: ignoring input
+False
+[[[1. 0. 0. ... 0. 0. 0.]
+  [0. 1. 0. ... 0. 0. 0.]
+  [0. 0. 1. ... 0. 0. 0.]
+  ...
+  [0. 0. 0. ... 1. 0. 0.]
+  [0. 0. 0. ... 0. 1. 0.]
+  [0. 0. 0. ... 0. 0. 1.]]
+
+ [[0. 0. 0. ... 0. 0. 0.]
+  [1. 0. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 0. 0.]
+  ...
+  [0. 0. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 1. 0.]]
+
+ [[0. 1. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 0. 0.]
+  ...
+  [0. 0. 0. ... 0. 0. 0.]
+  [0. 0. 0. ... 0. 0. 1.]
+  [0. 0. 0. ... 0. 0. 0.]]]
+Pad Temporal  4
+Pad Temporal  4
+Pad Temporal  4
+Pad Temporal  4
+Pad Temporal  0
+Pad Temporal  4
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Pad Temporal  0
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Pad Temporal  4
+Pad Temporal  4
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Pad Temporal  0
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Pad Temporal  0
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+Nh  8
+Dv  0.25
+Dk  0.25
+Pad Temporal  4
+self.backbone:  ModuleList(
+  (0): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (conv_list): ModuleList(
+        (0): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (1): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (2): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(128, 128, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (1): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (conv_list): ModuleList(
+        (0): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (1): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (2): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(128, 128, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (2): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (conv_list): ModuleList(
+        (0): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (1): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+        (2): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(128, 128, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (3): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(3350, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(134, 384, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(256, 256, kernel_size=(9, 1), stride=(2, 1), padding=(4, 0))
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+    (down1): Unit2D(
+      (conv): Conv2d(134, 256, kernel_size=(1, 1), stride=(2, 1))
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0, inplace=False)
+    )
+  )
+  (4): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(6400, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(256, 384, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(256, 256, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (5): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(6400, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(256, 384, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(256, 256, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (6): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(6400, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(256, 768, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(512, 512, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(512, 512, kernel_size=(9, 1), stride=(2, 1), padding=(4, 0))
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+    (down1): Unit2D(
+      (conv): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 1))
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0, inplace=False)
+    )
+  )
+  (7): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(12800, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(512, 768, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(512, 512, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(512, 512, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+  (8): TCN_GCN_unit(
+    (gcn1): gcn_unit_attention(
+      (relu): ReLU()
+      (data_bn): BatchNorm1d(12800, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attention_conv): spatial_attention(
+        (qkv_conv): Conv2d(512, 768, kernel_size=(1, 1), stride=(1, 1))
+        (attn_out): Conv2d(512, 512, kernel_size=(1, 1), stride=(1, 1))
+      )
+    )
+    (tcn1): Unit2D(
+      (conv): Conv2d(512, 512, kernel_size=(9, 1), stride=(1, 1), padding=(4, 0))
+      (bn): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.5, inplace=False)
+    )
+  )
+)
+199507
+199507
+199507
+750508
+768384
+768384
+2967296
+3044096
+3044096
+Pad Temporal  4
+Params:  14034732
+Layer params:  14034732
+[ Fri Feb 23 12:20:21 2024 ] Parameters:
+{'val_split': 0.2, 'data_dir': None, 'log_dir': './checkpoints/prova20', 'exp_name': 'prova20', 'num_workers': 10, 'clip_grad_norm': 0.5, 'writer_enabled': True, 'gcn0_flag': False, 'scheduling_lr': True, 'complete': True, 'bn_flag': True, 'accumulating_gradients': True, 'optimize_every': 2, 'clip': False, 'validation_split': False, 'data_mirroring': False, 'local_rank': 0, 'work_dir': './prova20', 'config': 'config/st_gcn/nturgbd/train.yaml', 'phase': 'train', 'save_score': True, 'seed': 13696642, 'training': True, 'log_interval': 100, 'save_interval': 1, 'eval_interval': 10, 'print_log': True, 'show_topk': [1, 5], 'feeder': 'st_gcn.feeder.Feeder', 'feeder_augmented': 'st_gcn.feeder.FeederAugmented', 'num_worker': 10, 'train_feeder_args': {'data_path': '../Output_skeletons_without_missing_skeletons/xsub/train_data_joint_bones.npy', 'label_path': '../Output_skeletons_without_missing_skeletons/xsub/train_label_filtered.pkl', 'random_choose': False, 'random_shift': False, 'random_move': False, 'window_size': -1, 'normalization': False, 'mirroring': False}, 'test_feeder_args': {'data_path': '../Output_skeletons_without_missing_skeletons/xsub/val_data_joint_bones.npy', 'label_path': '../Output_skeletons_without_missing_skeletons/xsub/val_label_filtered.pkl'}, 'train_feeder_args_new': {}, 'test_feeder_args_new': {}, 'model': 'st_gcn.net.ST_GCN', 'model_args': {'num_class': 60, 'channel': 6, 'window_size': 300, 'num_point': 25, 'num_person': 2, 'mask_learning': True, 'use_data_bn': True, 'attention': True, 'only_attention': True, 'tcn_attention': False, 'data_normalization': True, 'skip_conn': True, 'weight_matrix': 2, 'only_temporal_attention': True, 'bn_flag': True, 'attention_3': False, 'kernel_temporal': 9, 'more_channels': False, 'double_channel': True, 'drop_connect': True, 'concat_original': True, 'all_layers': False, 'adjacency': False, 'agcn': False, 'dv': 0.25, 'dk': 0.25, 'Nh': 8, 'n': 4, 'dim_block1': 10, 'dim_block2': 30, 'dim_block3': 75, 'relative': False, 'graph': 'st_gcn.graph.NTU_RGB_D', 'visualization': False, 'graph_args': {'labeling_mode': 'spatial'}}, 'weights': None, 'ignore_weights': [], 'cl_mode': 'ST-Multi-Level', 'cl_version': 'V0', 'w_multi_cl_loss': [0.1, 0.2, 0.5, 1], 'w_cl_loss': 0.1, 'scheduler': 1, 'base_lr': 0.1, 'step': [60, 90], 'device': [0, 1, 2, 3], 'optimizer': 'SGD', 'nesterov': True, 'batch_size': 2, 'test_batch_size': 8, 'start_epoch': 0, 'start_cl_epoch': -1, 'num_epoch': 2, 'weight_decay': 0.0001, 'display_by_category': False, 'display_recall_precision': False}
+
+True
+[ Fri Feb 23 12:20:21 2024 ] Training epoch: 1
+Cl_mode : ST-Multi-Level
+(40091, 6, 300, 25, 2) float32
+Cl_mode : ST-Multi-Level
+/home/kk746/.conda/envs/research/lib/python3.7/site-packages/sklearn/utils/validation.py:37: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  LARGE_SPARSE_SUPPORTED = LooseVersion(scipy_version) >= '0.14.0'
+main.py:1023: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  default_arg = yaml.load(f)
+Traceback (most recent call last):
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/resource_sharer.py", line 142, in _serve
+    with self._listener.accept() as conn:
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/connection.py", line 455, in accept
+    deliver_challenge(c, self._authkey)
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/connection.py", line 730, in deliver_challenge
+    response = connection.recv_bytes(256)        # reject large message
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/connection.py", line 407, in _recv_bytes
+    buf = self._recv(4)
+  File "/home/kk746/.conda/envs/research/lib/python3.7/multiprocessing/connection.py", line 379, in _recv
+    chunk = read(handle, remaining)
+ConnectionResetError: [Errno 104] Connection reset by peer

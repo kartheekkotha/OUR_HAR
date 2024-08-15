@@ -23,7 +23,7 @@ test_feeder_args:
   label_path: new_data_processed/xsub/val_label_120.pkl
 
 # model
-model: st_gcn.net.ST_GCN_REDESIGNED
+model: st_gcn.net.ST_GCNN
 training: True
 cl_mode: ST-Multi-Level
 complete_cl_loss: False

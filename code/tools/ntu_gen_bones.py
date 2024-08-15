@@ -23,6 +23,13 @@ paris = {
         (16, 15), (17, 1), (18, 17), (19, 18), (20, 19),
         (22, 23), (21, 21), (23, 8), (24, 25), (25, 12)
     ),
+    'xset': (
+        (1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
+        (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
+        (11, 10), (12, 11), (13, 1), (14, 13), (15, 14),
+        (16, 15), (17, 1), (18, 17), (19, 18), (20, 19),
+        (22, 23), (21, 21), (23, 8), (24, 25), (25, 12)
+    ),
 
     'kinetics': (
         (0, 0), (1, 0), (2, 1), (3, 2), (4, 3), (5, 1),
@@ -31,11 +38,12 @@ paris = {
     )
 }
 
-# sets = {'train','val'}
-sets = {'train'}
+sets = {'train','val'}
+# sets = {'val'}
 # datasets = {'kinetics'} if kinetics is used
+datasets = {'xsub', 'xset'}
 # datasets = {'xsub', 'xview'}
-datasets = {'xsub'}
+# datasets = {'xview'}
 
 
 def gen_bone_data():
@@ -43,10 +51,10 @@ def gen_bone_data():
     for dataset in datasets:
         for set in sets:
             print(dataset, set)
-            data = np.load('../../data/ntu/{}/{}_data_joint.npy'.format(dataset, set))
+            data = np.load('../new_data_processed/{}/{}_joint_120.npy'.format(dataset, set))
             N, C, T, V, M = data.shape
             fp_sp = open_memmap(
-                '../../data/ntu/{}/{}_data_bone.npy'.format(dataset, set),
+                '../new_data_processed_bones/{}/{}_data_bone.npy'.format(dataset, set),
                 dtype='float32',
                 mode='w+',
                 shape=(N, 3, T, V, M))

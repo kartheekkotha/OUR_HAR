@@ -36,7 +36,7 @@ model_args:
   attention_3: False
   kernel_temporal: 9
   more_channels: False
-  double_channel: True
+  double_channel: False
   drop_connect: True
   concat_original: True
   all_layers: False

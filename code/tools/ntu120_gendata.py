@@ -2,8 +2,9 @@ import numpy as np
 import argparse
 import os
 import sys
-from .ntu_read_skeleton import read_xyz
+from ntu_read_skeleton import read_xyz
 from numpy.lib.format import open_memmap
+from tqdm import tqdm
 import pickle
 
 '''
@@ -156,10 +157,10 @@ def gendata(file_list, out_path, ignored_sample_path, benchmark, part):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NTU-RGB-D 120 Skeleton Data Extraction')
-    parser.add_argument('--part1-path', default='../data/nturgbd/nturgb+d_skeletons/')
-    parser.add_argument('--part2-path', default='../data/nturgbd/nturgb+d_skeletons120/')
+    parser.add_argument('--part1-path', default='data/NTU-RGB-D/nturgb+d_skeletons')
+    parser.add_argument('--part2-path', default='data/NTU-RGB-D/nturgb+d_skeletons120')
     parser.add_argument('--ignored-sample-path',
-                        default='../data/nturgbd/NTU_RGBD120_samples_with_missing_skeletons.txt')
+                        default='resource/NTU-RGB-D/samples_with_missing_skeletons120.txt')
     parser.add_argument('--out-folder', default='../data/ntu120/')
 
     benchmark = ['xsub', 'xset']

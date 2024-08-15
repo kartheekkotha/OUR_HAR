@@ -93,7 +93,7 @@ def get_parser():
     parser.add_argument(
         '--seed', type=int, default=13696642, help='random seed for pytorch')
     parser.add_argument(
-        '--training', type=str2bool, default=True, help='training or testing mode')
+        '--training', type=str2bool, default=False, help='training or testing mode')
 
     parser.add_argument(
         '--log-interval',
@@ -162,6 +162,7 @@ def get_parser():
         '--weights',
         default=None,
         help='the weights for network initialization')
+    # default='prova20/epoch60_model.pt',
     parser.add_argument(
         '--ignore-weights',
         type=str,
@@ -176,6 +177,9 @@ def get_parser():
     parser.add_argument('--w-multi-cl-loss', type=float, default=[0.1, 0.2, 0.5, 1], nargs='+',
                         help='weight of multi-level cl loss')
     parser.add_argument('--w-cl-loss', type=float, default=0.1, help='weight of cl loss')
+
+    parser.add_argument('--complete-cl-loss', type=arg_boolean, default=True)
+    parser.add_argument('--spatial-only-loss', type=arg_boolean, default=True)
 
     # optim
     parser.add_argument(
@@ -222,12 +226,12 @@ def get_parser():
     parser.add_argument(
         '--display_by_category',
         type=str2bool,
-        default=False,
+        default=True,
         help='if ture, the top k accuracy by category  will be displayed')
     parser.add_argument(
         '--display_recall_precision',
         type=str2bool,
-        default=False,
+        default=True,
         help='if ture, recall and precision by category  will be displayed')
 
     return parser
@@ -332,7 +336,7 @@ class Processor():
         self.output_device = output_device
         Model = import_class(self.arg.model)
         # self.model = Model(**self.arg.model_args, device=self.output_device).to(output_device)
-        self.model = Model(**self.arg.model_args, cl_version=self.arg.cl_version, cl_mode=self.arg.cl_mode,multi_cl_weights=self.arg.w_multi_cl_loss, device=self.output_device).to(output_device)
+        self.model = Model(**self.arg.model_args, cl_version=self.arg.cl_version, cl_mode=self.arg.cl_mode,multi_cl_weights=self.arg.w_multi_cl_loss, completeLoss = self.arg.complete_cl_loss, isSpatial = self.arg.spatial_only_loss, device=self.output_device).to(output_device)
         self.loss = nn.CrossEntropyLoss().to(output_device)
 
         if self.arg.weights:
@@ -448,7 +452,9 @@ class Processor():
         train_correct = 0
         self.record_time()
         timer = dict(dataloader=0.001, model=0.001, statistics=0.001)
+        print("Cl_mode :",self.arg.cl_mode)
         if (not arg.accumulating_gradients):
+            print("Into If")
             for batch_idx, (data, label, name) in enumerate(loader):
                 data = Variable(
                     data.float().to(self.output_device), requires_grad=False)
@@ -472,7 +478,7 @@ class Processor():
                 if self.arg.cl_mode is not None:
                     # cl_loss = self.loss(fn_output, label).mean() + self.loss(fp_output, label).mean()
                     # self.train_writer.add_scalar('cl_loss', cl_loss.mean().data.item(), self.global_step)
-                    if epoch > self.arg.start__epoch:
+                    if epoch > self.arg.start_epoch:
                         full_loss += self.arg.w_cl_loss * cl_loss.mean()
                 # backward
                 self.optimizer.zero_grad()
@@ -490,7 +496,13 @@ class Processor():
                     'accuracy-Train': acc,
                 }
 
-
+                if (batch_idx + 1) % 500 == 0:
+                    stats_train_log = 'Training: Epoch [{}/{}], Step [{}], Loss: {}, Training Accuracy: {}'.format(epoch,
+                                                                                                                   self.arg.num_epoch,
+                                                                                                               batch_idx,
+                                                                                                               loss.item(),
+                                                                                                               acc)
+                    self.print_log('\n' + stats_train_log)
                 # Print statistics every 100 batches
                 if (batch_idx + 1) % 200 == 0:
                     print("Total samples seen so far: ", train_total)
@@ -554,6 +566,7 @@ class Processor():
             shape = loader.dataset.data.shape  
             datatype = loader.dataset.data.dtype
             print(shape , datatype)
+            print("Cl_mode :",self.arg.cl_mode)
             for batch_idx, (data, label, name) in enumerate(loader):
                 data = Variable(
                     data.float().to(self.output_device), requires_grad=False)
@@ -574,11 +587,10 @@ class Processor():
                 # output = self.model(data, label, name)
                 loss = self.loss(output, label)
                 full_loss = loss.mean()
-
                 if self.arg.cl_mode is not None:
                     # cl_loss = self.loss(fn_output, label).mean() + self.loss(fp_output, label).mean()
                     # self.train_writer.add_scalar('cl_loss', cl_loss.mean().data.item(), self.global_step)
-                    if epoch > self.arg.start__epoch:
+                    if epoch > self.arg.start_epoch:
                         full_loss += self.arg.w_cl_loss * cl_loss.mean()
                 # backward
                 loss_norm = full_loss / running_optimize_every
@@ -621,7 +633,13 @@ class Processor():
                         if param.requires_grad and param.grad is not None:
                             # logger.scalar_summary("gradients/" + name, param.grad.norm(2).item(), global_step)
                             writer.add_scalar("gradients/" + name, param.grad.norm(2).item(), step)
-
+                    if (batch_idx + 1) % 500 == 0:
+                        stats_train_log = 'Training: Epoch [{}/{}], Step [{}], Loss: {}, Training Accuracy: {}'.format(epoch,
+                                                                                                                    self.arg.num_epoch,
+                                                                                                                batch_idx,
+                                                                                                                loss.item(),
+                                                                                                                acc)
+                        self.print_log('\n' + stats_train_log)
                     # Print statistics every 100 batches
                     if (real_batch_index + 1) % 200 == 0:
                         # accuracy = self.evaluate(epoch, epochs, self.sub_dataVal)
@@ -700,9 +718,11 @@ class Processor():
         class_total = list(0. for i in range(0, self.arg.model_args['num_class']))
 
         for ln in loader_name:
+            # print("into the loop")
             loss_value = []
             score_frag = []
             for batch_idx, (data, label, name) in enumerate(self.data_loader[ln]):
+                # print("into the sloop2")
                 data = Variable(
                     data.float().to(self.output_device),
                     requires_grad=False,
@@ -731,7 +751,6 @@ class Processor():
                 val_accuracy = (val_correct / val_total) * 100
                 c = (label == predictions.squeeze()).float()
                 val_accuracy_batch = (c).float().mean()
-
                 # Calculating validation accuracy for each class
                 for l in range(0, label.size(0)):
                     class_label = label[l]
@@ -744,9 +763,11 @@ class Processor():
                     'accuracy-test': val_accuracy
                 }
                 conf_matrix_test += confusion_matrix(predictions.cpu(), label.cpu(), labels=np.arange(self.arg.model_args['num_class']))
-                np.save("./checkpoints/" + name_exp + "/confusion_test_" + str(epoch),
+                np.save("./" + name_exp + "/confusion_test_" + str(epoch),
                         conf_matrix_test)
-
+                # np.save("./checkpoints/" + name_exp + "/confusion_test_" + str(epoch),
+                #         conf_matrix_test)
+                # print(batch_idx , val_accuracy)
             score = np.concatenate(score_frag)
 
             # Added
@@ -851,7 +872,6 @@ class Processor():
 
 
                 #     volatile=True)
-
                 output = self.model(data, label, name)
                 loss = self.loss(output, label)
                 score_frag.append(output.data.cpu().numpy())
@@ -896,14 +916,17 @@ class Processor():
                 val_accuracy)
 
             print('\n' + stats_val)
-
+            self.print_log('\n' + stats_val)
             for i in range(0, self.arg.model_args['num_class']):
                 if class_total[i] != 0:
                     print('Accuracy of {} : {} / {} = {} %'.format(i + 1,
                                                                    int(class_correct[i]), int(class_total[i]),
                                                                    int(100 * class_correct[i] /
                                                                        class_total[i])))
-
+                    self.print_log('Accuracy of {} : {} / {} = {} %'.format(i + 1,
+                                                                   int(class_correct[i]), int(class_total[i]),
+                                                                   int(100 * class_correct[i] /
+                                                                       class_total[i])))
             #
             step = (epoch + 1) * (len(self.data_loader['train']) / (arg.optimize_every))
 

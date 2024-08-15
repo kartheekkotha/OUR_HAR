@@ -1,1 +1,0 @@
-The temporal field is attached to the spatial and vice versa

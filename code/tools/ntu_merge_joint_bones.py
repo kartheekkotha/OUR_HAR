@@ -30,36 +30,40 @@ import os
 import numpy as np
 import math
 
-# sets = {
-#     'val', 'train'
-# }
+sets = {
+    'val', 'train'
+}
 
-# # datasets= {'kinetics'} if kinetics is used
+# datasets= {'kinetics'} if kinetics is used
 # datasets = {
 #     'xsub', 'xview'
 # }
-
-sets = {
-    'val'
-}
-
 datasets = {
-    'xview'
+    'xsub', 'xset'
 }
+
+
+# sets = {
+#     'val'
+# }
+
+# datasets = {
+#     'xview'
+# }
 
 chunk_size = 1000  # Define your chunk size here
 
 for dataset in datasets:
     for set in sets:
         print(dataset, set)
-        data_jpt = np.load('../../data/ntu/{}/{}_data_joint.npy'.format(dataset, set), mmap_mode='r')
+        data_jpt = np.load('../new_data_processed/{}/{}_joint_120.npy'.format(dataset, set), mmap_mode='r')
         print(len(data_jpt))
-        data_bone = np.load('../../data/ntu/{}/{}_data_bone.npy'.format(dataset, set), mmap_mode='r')
+        data_bone = np.load('../new_data_processed_bones/{}/{}_data_bone.npy'.format(dataset, set), mmap_mode='r')
         print(len(data_bone))
         N, C, T, V, M = data_jpt.shape
         num_chunks = math.ceil(N / chunk_size)  # Use math.ceil to round up
 
-        output_file = '../../data/ntu/{}/{}_data_joint_bones.npy'.format(dataset, set)
+        output_file = '../new_data_processed_bones/{}/{}_data_joint_bones.npy'.format(dataset, set)
 
         # Create a memory-mapped array for the output data
         output_data = np.lib.format.open_memmap(output_file, mode='w+', shape=(N, C*2, T, V, M), dtype=data_jpt.dtype)

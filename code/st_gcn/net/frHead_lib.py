@@ -180,34 +180,53 @@ class RenovateNet(nn.Module):
 
 
 class ST_RenovateNet(nn.Module):
-    def __init__(self, n_channel, n_frame, n_joint, n_person, h_channel=256, **kwargs):
+    def __init__(self, n_channel, n_frame, n_joint, n_person, h_channel=512, completeLoss = True, isSpatial = True, **kwargs):
         super(ST_RenovateNet, self).__init__()
         self.n_channel = n_channel
         self.n_frame = n_frame
         self.n_joint = n_joint
         self.n_person = n_person
+        self.completeLoss = completeLoss
+        self.isSpatial = isSpatial
 
         self.spatio_cl_net = RenovateNet(n_channel=h_channel // n_joint * n_joint, h_channel=h_channel, **kwargs)
         self.tempor_cl_net = RenovateNet(n_channel=h_channel // n_frame * n_frame, h_channel=h_channel, **kwargs)
-
         self.spatio_squeeze = nn.Sequential(nn.Conv2d(n_channel, h_channel // n_joint, kernel_size=1),
                                             nn.BatchNorm2d(h_channel // n_joint), nn.ReLU(True))
-        self.tempor_squeeze = nn.Sequential(nn.Conv2d(n_channel, h_channel // n_frame, kernel_size=1),
+        # print(f'h channel {h_channel}  n_channel {n_channel} n_frame {n_frame}')
+        self.tempor_squeeze = nn.Sequential(nn.Conv2d(in_channels= n_channel,out_channels= h_channel // n_frame, kernel_size=1),
                                             nn.BatchNorm2d(h_channel // n_frame), nn.ReLU(True))
 
 
     def forward(self, raw_feat, lbl, logit, **kwargs):
         # raw_feat: [N * M, C, T, V]
+        # print("rawfeat_shape", raw_feat.shape)
         raw_feat = raw_feat.view(-1, self.n_person, self.n_channel, self.n_frame, self.n_joint)
+    # /    print("rawfeat_shape_ after editing ", raw_feat.shape)
 
         spatio_feat = raw_feat.mean(1).mean(-2, keepdim=True)
+        # print("spatio_feat: ", spatio_feat.shape)
         spatio_feat = self.spatio_squeeze(spatio_feat)
         spatio_feat = spatio_feat.flatten(1)
         spatio_cl_loss = self.spatio_cl_net(spatio_feat, lbl, logit, **kwargs)
 
+        # print("rawfeat_shape_after editing", raw_feat.shape)
         tempor_feat = raw_feat.mean(1).mean(-1, keepdim=True)
+        # print("tempor_feat: ", tempor_feat.shape)
+        # print(f'num_frame {self.n_frame} , num joint {self.n_joint}')
+        # print(self.tempor_squeeze)
         tempor_feat = self.tempor_squeeze(tempor_feat)
+        # print("Into the forward of Ren_low")
         tempor_feat = tempor_feat.flatten(1)
         tempor_cl_loss = self.tempor_cl_net(tempor_feat, lbl, logit, **kwargs)
 
-        return spatio_cl_loss + tempor_cl_loss
+        if self.completeLoss:
+            # print("complete Head")
+            return spatio_cl_loss + tempor_cl_loss
+        else:
+            if self.isSpatial:
+                # print("Spatoal Loss")
+                return spatio_cl_loss
+            else:
+                # print("Temporal Loss")
+                return tempor_cl_loss

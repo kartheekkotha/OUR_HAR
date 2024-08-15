@@ -150,7 +150,7 @@ def gendata(file_list, out_path, ignored_sample_path, benchmark, part):
         # Fill (C,T,V,M) to data tensor (N,C,T,V,M)
         fp[i, :, 0:data.shape[1], :, :] = data
 
-    # Perform preprocessing on data tensor
+    # Perform preprocessing on datat tensor
     fp = pre_normalization(fp)
     # Save input data (train/val)
     np.save('{}/{}_joint_120.npy'.format(out_path, part), fp)
@@ -158,14 +158,14 @@ def gendata(file_list, out_path, ignored_sample_path, benchmark, part):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NTU-RGB-D 120 Skeleton Data Extraction')
-    parser.add_argument('--part1-path', default='./Skeletons/nturgb+d_skeletons/')
-    parser.add_argument('--part2-path', default='./new_skeletons/')
+    parser.add_argument('--part1-path', default='tools/data/NTU-RGB-D/nturgb+d_skeletons/')
+    parser.add_argument('--part2-path', default='tools/data/NTU-RGB-D/nturgb+d_skeletons120/')
     parser.add_argument('--ignored-sample-path',
-                        default='./missing_samples.txt')
+                        default='tools/data/NTU+RGB+D/samples_with_missing_skeletons120.txt')
     parser.add_argument('--out-folder', default='./new_data_processed/')
 
-    benchmark = ['xsub']
-    part = ['val']
+    benchmark = ['xsub' , 'xset']
+    part = ['val' ,'train' ]
     arg = parser.parse_args()
 
     # Combine skeleton file paths

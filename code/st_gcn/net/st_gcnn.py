@@ -95,6 +95,8 @@ class Model(nn.Module):
                  cl_version = 'V0',#added
                  multi_cl_weights=[1, 1, 1, 1],#added
                  cl_mode = None, #added
+                 completeLoss = True, #added
+                 isSpatial = True, #added
                  use_data_bn=False,
                  backbone_config=None,
                  graph=None,
@@ -146,6 +148,8 @@ class Model(nn.Module):
         self.cl_version = cl_version
         self.multi_cl_weights = multi_cl_weights
         self.cl_mode = cl_mode
+        self.completeLoss = completeLoss
+        self.isSpatial = isSpatial
         ########
         # Different bodies share batchNorm parameters or not
         self.M_dim_bn = True
@@ -284,10 +288,10 @@ class Model(nn.Module):
     '''
     def build_cl_blocks(self):
         if self.cl_mode == "ST-Multi-Level":
-            self.ren_low = ST_RenovateNet(self.base_channel, self.num_frame, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version)
-            self.ren_mid = ST_RenovateNet(self.base_channel * 2, self.num_frame // 2, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version)
-            self.ren_high = ST_RenovateNet(self.base_channel * 4, self.num_frame // 4, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version)
-            self.ren_fin = ST_RenovateNet(self.base_channel * 4, self.num_frame // 4, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version)
+            self.ren_low = ST_RenovateNet(self.base_channel, self.num_frame, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version , completeLoss = self.completeLoss , isSpatial = self.isSpatial)
+            self.ren_mid = ST_RenovateNet(self.base_channel * 2, self.num_frame // 2, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version, completeLoss = self.completeLoss , isSpatial = self.isSpatial)
+            self.ren_high = ST_RenovateNet(self.base_channel * 4, self.num_frame // 4, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version, completeLoss = self.completeLoss , isSpatial = self.isSpatial)
+            self.ren_fin = ST_RenovateNet(self.base_channel * 4, self.num_frame // 4, self.num_point, self.num_person, n_class=self.num_class, version=self.cl_version, completeLoss = self.completeLoss , isSpatial = self.isSpatial)
         else:
             raise KeyError(f"no such Contrastive Learning Mode {self.cl_mode}")
     '''variables needed 
@@ -301,19 +305,26 @@ class Model(nn.Module):
     def get_ST_Multi_Level_cl_output(self, x, feat_low, feat_mid, feat_high, feat_fin, label):
         # logits = self.fc(x)
         logits = x
+        # print("logits done")
         cl_low = self.ren_low(feat_low, label.detach(), logits.detach())
+        # print("cl_low done")
         cl_mid = self.ren_mid(feat_mid, label.detach(), logits.detach())
+        # print("cl_mid done")
         cl_high = self.ren_high(feat_high, label.detach(), logits.detach())
+        # # print("cl_high done")
         cl_fin = self.ren_fin(feat_fin, label.detach(), logits.detach())
-        cl_loss = cl_low * self.multi_cl_weights[0] + cl_mid * self.multi_cl_weights[1] + \
-                  cl_high * self.multi_cl_weights[2] + cl_fin * self.multi_cl_weights[3]
+        # print("cl_fin done")
+        # cl_loss = cl_low * self.multi_cl_weights[0] + cl_mid *self.multi_cl_weights[1] 
+        cl_loss = cl_low * self.multi_cl_weights[0] + cl_mid *self.multi_cl_weights[1] + cl_high*self.multi_cl_weights[2] + cl_fin* self.multi_cl_weights[3]
+        # print("cl_loss: ",cl_loss)
         return logits, cl_loss
     # ____changed____
     ######
 
     def forward(self, x, label, name , get_cl_loss = False):
+        # print("In forward")
         N, C, T, V, M = x.size()
-        print(x.shape)
+        # print(x.shape)
         if (self.concat_original):
             x_coord = x
             x_coord = x_coord.permute(0, 4, 1, 2, 3).reshape(N * M, C, T, V)
@@ -371,8 +382,9 @@ class Model(nn.Module):
         x = F.avg_pool1d(x, x.size()[2:])
         x = x.view(N, self.num_class)
         ##3#changed _____
+        # print(f'get_cl_loss {get_cl_loss} , cl_mode {self.cl_mode}')
         if get_cl_loss and self.cl_mode == "ST-Multi-Level":
-            self.cl_loss =  self.get_ST_Multi_Level_cl_output(x, feat_low, feat_mid, feat_high, feat_fin, label)
+            return self.get_ST_Multi_Level_cl_output(x, feat_low, feat_mid, feat_high, feat_fin, label)
         return x
     # def get_cl_loss(self):
     #     if(self.cl_mode!= None):
@@ -440,7 +452,7 @@ class TCN_GCN_unit(nn.Module):
         self.all_layers = all_layers
         self.more_channels = more_channels
 
-        if (layer%2 == 1 and attention or (self.all_layers and attention)):
+        if (self.layer%2==1 and attention or (self.all_layers and attention)):
 
             self.gcn1 = gcn_unit_attention(in_channel, out_channel, dv_factor=dv, dk_factor=dk, Nh=Nh,
                                            complete=True,
@@ -466,7 +478,7 @@ class TCN_GCN_unit(nn.Module):
                     use_local_bn=use_local_bn,
                     mask_learning=mask_learning)
 
-        if (layer%2==0 and tcn_attention or (self.all_layers and tcn_attention)):
+        if (self.layer%2==1 and tcn_attention or (self.all_layers and tcn_attention)):
 
             if out_channel <= starting_ch and self.all_layers:
                 self.tcn1 = tcn_unit_attention_block(out_channel, out_channel, dv_factor=dv,
